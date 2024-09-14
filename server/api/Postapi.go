@@ -16,10 +16,6 @@ func PostRequest() fiber.Handler {
 			return c.Status(http.StatusServiceUnavailable).SendString("Failed parsing body request")
 		}
 
-		if err != nil {
-			return c.Status(http.StatusUnauthorized).SendString("Failed retriving the session")
-		}
-
 		data := c.Locals("user_id")
 
 		if data == nil {
