@@ -2,11 +2,24 @@
 
 import { useState } from 'react';
 
+// Define the categories
+const categories = [
+  { name: 'Cars', value: 'cars' },
+  { name: 'Real Estate', value: 'real-estate' },
+  { name: 'Electronics', value: 'electronics' },
+  { name: 'Furniture', value: 'furniture' },
+  { name: 'Fashion', value: 'fashion' },
+  { name: 'Services', value: 'services' },
+  { name: 'Jobs', value: 'jobs' },
+  { name: 'Pets', value: 'pets' },
+];
+
 export default function PostAdPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [category, setCategory] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -14,8 +27,8 @@ export default function PostAdPage() {
     e.preventDefault();
 
     // Validate input
-    if (!title || !description || !price) {
-      setError('Title, description, and price are required.');
+    if (!title || !description || !price || !category) {
+      setError('Title, description, price, and category are required.');
       return;
     }
 
@@ -30,7 +43,7 @@ export default function PostAdPage() {
       const res = await fetch('/api/ads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, price: priceNumber, imageUrl }),
+        body: JSON.stringify({ title, description, price: priceNumber, imageUrl, category }),
       });
 
       if (res.ok) {
@@ -40,6 +53,7 @@ export default function PostAdPage() {
         setDescription('');
         setPrice('');
         setImageUrl('');
+        setCategory('');
       } else {
         const errorData = await res.json();
         setError(errorData.error || 'Failed to post ad');
@@ -86,6 +100,22 @@ export default function PostAdPage() {
             placeholder="Enter ad price"
             required
           />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md"
+            required
+          >
+            <option value="" disabled>Select a category</option>
+            {categories.map((cat) => (
+              <option key={cat.value} value={cat.value}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Image URL (optional)</label>

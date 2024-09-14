@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,13 +21,14 @@ export default function SignUpPage() {
     const res = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, username, password }),
     });
 
     if (res.ok) {
       setSuccess('Sign-up successful!');
     } else {
-      setError('Failed to sign up');
+      const errorData = await res.json();
+      setError(errorData.error || 'Failed to sign up');
     }
   };
 
@@ -42,6 +44,16 @@ export default function SignUpPage() {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-3 py-2 border rounded-md"
             placeholder="Enter your email"
+          />
+        </div>
+        <div className="mb-4">
+          <label>Username</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md"
+            placeholder="Enter your username"
           />
         </div>
         <div className="mb-4">

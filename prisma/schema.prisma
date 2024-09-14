@@ -10,6 +10,7 @@ generator client {
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
+  username  String   @unique
   password  String
   createdAt DateTime @default(now())
 }
@@ -20,5 +21,7 @@ model Ad {
   description String
   price       Float
   imageUrl    String?
+  category    String   // Ensure this field is present
   createdAt   DateTime @default(now())
 }
+

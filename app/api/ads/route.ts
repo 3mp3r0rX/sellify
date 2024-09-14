@@ -1,32 +1,43 @@
-// src/app/api/ads/route.ts
-
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
   try {
-    // Existing GET handler code here...
+    // Fetch all ads including the category field
+    const ads = await prisma.ad.findMany({
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        price: true,
+        imageUrl: true,
+        category: true,  // Include the category in the response
+      },
+    });
+    return NextResponse.json(ads, { status: 200 });
   } catch (error) {
+    console.error('Error fetching ads:', error);
     return NextResponse.json({ error: 'Failed to fetch ads' }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { title, description, price, imageUrl } = await request.json();
+    const { title, description, price, imageUrl, category } = await request.json();
 
-    // Validate input
-    if (!title || !description || isNaN(price)) {
+    // Validate required fields
+    if (!title || !description || isNaN(price) || !category) {
       return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
     }
 
-    // Create a new ad
+    // Create a new ad including the category field
     const newAd = await prisma.ad.create({
       data: {
         title,
         description,
         price,
-        imageUrl: imageUrl || null, // Handle optional field
+        imageUrl: imageUrl || null,
+        category,  // Save the category in the database
       },
     });
 
