@@ -47,3 +47,18 @@ func CreateTables() error {
 
 	return nil
 }
+
+func InesrtDataInCategory() error {
+	sqlBytes, err := os.ReadFile("insertcategories.sql")
+	if err != nil {
+		return fmt.Errorf("failed to read SQL file: %v", err)
+	}
+	sqlString := string(sqlBytes)
+
+	_, err = DB.Exec(sqlString)
+	if err != nil {
+		return fmt.Errorf("failed to execute SQL commands: %v", err)
+	}
+
+	return nil
+}

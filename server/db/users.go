@@ -29,18 +29,17 @@ func StoreUser(user *entity.SignUpRequest) (bool, string) {
 	return true, "Signup Successfuly"
 }
 
-func ValidateUser(email string) (bool, error) {
-	query := "SELECT 1 FROM users WHERE user_email = $1"
-	var exists bool
-	row := DB.QueryRow(query, email)
-	err := row.Scan(&exists)
-	if err == sql.ErrNoRows {
-		return false, nil
-	}
+func ValidateIfUserExists(email string) (int, error) {
+	query := "SELECT id FROM users WHERE user_email = $1"
+	var id int
+	err := DB.QueryRow(query, email).Scan(&id)
 	if err != nil {
-		return false, err
+		if err == sql.ErrNoRows {
+			return 0, nil
+		}
+		return 0, err
 	}
-	return true, nil
+	return id, nil
 }
 
 func GetUserPassword(email string) string {
