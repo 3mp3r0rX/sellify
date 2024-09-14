@@ -20,8 +20,9 @@ export default function PostAdPage() {
       return;
     }
 
-    const res = await fetch('/api/ads', {
+    const res = await fetch('http://localhost:8080/api/ads', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, description, price: Number(price), imageUrl, category }),
     });

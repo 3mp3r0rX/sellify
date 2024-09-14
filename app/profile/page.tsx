@@ -7,7 +7,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     async function fetchUser() {
-      const res = await fetch('/api/user');
+      const res = await fetch('http://localhost:8080/api/user');
       const data = await res.json();
       setUser(data);
     }

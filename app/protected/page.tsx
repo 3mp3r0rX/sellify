@@ -6,7 +6,7 @@ export default function ProtectedPage() {
   const [content, setContent] = useState<string | null>(null);
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await fetch('http://localhost:8080/api/auth/logout', { method: 'POST' });
     window.location.href = '/login';
   };
 
