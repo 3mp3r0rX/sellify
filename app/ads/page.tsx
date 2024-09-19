@@ -9,6 +9,7 @@ interface Ad {
   description: string;
   price: number;
   imageUrl: string;
+  category: string; 
 }
 
 export default function AdsPage() {
@@ -23,7 +24,7 @@ export default function AdsPage() {
   useEffect(() => {
     async function fetchAds() {
       setLoading(true);
-      setError(null); // Reset error state before loading
+      setError(null);
 
       try {
         const query = new URLSearchParams({
@@ -37,14 +38,19 @@ export default function AdsPage() {
         if (!res.ok) throw new Error('Failed to fetch ads');
 
         const data = await res.json();
-        
-        // Append new ads to the existing list
-        setAds((prevAds) => [...prevAds, ...data.ads]);
-        
-        // Determine if more ads are available for pagination
-        setHasMore(data.hasMore);
-      } catch (error) {
-        setError('Failed to load ads. Please try again.');
+
+        // Validate and log fetched data
+        console.log('Fetched data:', data);
+
+        if (Array.isArray(data)) {
+          setAds((prevAds) => [...prevAds, ...data]);
+          // Assuming `hasMore` is determined by the length of the array
+          setHasMore(data.length === 10);
+        } else {
+          setError('Invalid data format');
+        }
+      } catch (error: any) {
+        setError(error.message || 'Failed to load ads. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -57,7 +63,6 @@ export default function AdsPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Available Ads</h1>
 
-      {/* Search and Sort Controls */}
       <div className="mb-6 flex flex-col md:flex-row gap-4">
         <input
           type="text"
@@ -77,23 +82,23 @@ export default function AdsPage() {
         </select>
       </div>
 
-      {/* Display Ads */}
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {ads.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {ads.map((ad) => (
             <div key={ad.id} className="border p-4 rounded-lg shadow-md bg-white hover:bg-gray-50 transition ease-in-out duration-150">
               <Image
-                src={ad.imageUrl || '/placeholder.png'}
+                src={ad.imageUrl}
                 alt={ad.title}
                 width={500}
                 height={300}
                 className="w-full h-48 object-cover rounded-lg"
-                onError={(e) => (e.currentTarget.src = '/placeholder.png')} // Fallback to placeholder if image fails to load
+                onError={(e) => (e.currentTarget.src = '/placeholder.png')} 
               />
               <h2 className="text-2xl font-semibold mt-4">{ad.title}</h2>
               <p className="text-gray-700 mt-2">{ad.description}</p>
               <p className="text-lg font-bold mt-2">${ad.price}</p>
+              <p className="text-sm text-gray-500 mt-1">{ad.category}</p>
               <a href={`/ads/${ad.id}`} className="text-blue-500 hover:underline mt-4 inline-block">View Details</a>
             </div>
           ))}
@@ -102,7 +107,6 @@ export default function AdsPage() {
         <p className="text-gray-700">No ads available</p>
       )}
 
-      {/* Pagination */}
       {hasMore && !loading ? (
         <button
           onClick={() => setPage((prevPage) => prevPage + 1)}
@@ -116,7 +120,6 @@ export default function AdsPage() {
         )
       )}
 
-      {/* Loading Indicator */}
       {loading && (
         <div className="mt-8">
           <p>Loading more ads...</p>

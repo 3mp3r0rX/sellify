@@ -3,7 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Transition } from '@headlessui/react';
-import { FaCar, FaHome, FaLaptop, FaCouch, FaTshirt, FaBriefcase, FaDog, FaWrench } from 'react-icons/fa'; // Import icons
+import {
+  FaCar, FaHome, FaLaptop, FaCouch, FaTshirt, FaBriefcase, FaDog, FaWrench, FaHardHat, FaCamera, FaBaby,
+  FaUtensils, FaLeaf, FaPlane, FaPalette, FaMusic, FaMotorcycle, FaHeartbeat, FaPuzzlePiece, FaFootballBall, FaBook
+} from 'react-icons/fa'; 
+import CategoriesList from './CategoriesList ';
 
 const categories = [
   { name: 'Cars', href: '/category/cars', icon: <FaCar /> },
@@ -14,6 +18,20 @@ const categories = [
   { name: 'Services', href: '/category/services', icon: <FaWrench /> },
   { name: 'Jobs', href: '/category/jobs', icon: <FaBriefcase /> },
   { name: 'Pets', href: '/category/pets', icon: <FaDog /> },
+  { name: 'Books', href: '/category/books', icon: <FaBook /> },
+  { name: 'Sports', href: '/category/sports', icon: <FaFootballBall /> }, 
+  { name: 'Toys', href: '/category/toys', icon: <FaPuzzlePiece /> },
+  { name: 'Motorcycles', href: '/category/motorcycles', icon: <FaMotorcycle /> }, 
+  { name: 'Health & Beauty', href: '/category/health-beauty', icon: <FaHeartbeat /> },
+  { name: 'Music', href: '/category/music', icon: <FaMusic /> },
+  { name: 'Art', href: '/category/art', icon: <FaPalette /> },
+  { name: 'Travel', href: '/category/travel', icon: <FaPlane /> },
+  { name: 'Garden', href: '/category/garden', icon: <FaLeaf /> },
+  { name: 'Food & Drink', href: '/category/food-drink', icon: <FaUtensils /> }, 
+  { name: 'Babies & Kids', href: '/category/babies-kids', icon: <FaBaby /> },   
+  { name: 'Photography', href: '/category/photography', icon: <FaCamera /> },   
+  { name: 'Construction', href: '/category/construction', icon: <FaHardHat /> }, 
+
 ];
 
 export default function Navbar() {
@@ -21,13 +39,11 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white shadow-md">
-      {/* Navbar */}
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link href="/" legacyBehavior>
           <a className="text-2xl font-bold text-gray-800">Sellify</a>
         </Link>
 
-        {/* Hamburger Menu for Mobile */}
         <div className="md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -53,7 +69,6 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Desktop Links */}
         <div className="hidden md:flex space-x-4">
           <Link href="/post-ad" legacyBehavior>
             <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Post Ad</a>
@@ -67,7 +82,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <Transition
         show={isOpen}
         enter="transition ease-out duration-300 transform"
@@ -92,19 +106,7 @@ export default function Navbar() {
         </div>
       </Transition>
 
-      {/* Categories Under Navbar */}
-      <div className="bg-gray-100 shadow-sm py-2">
-        <div className="container mx-auto px-4 flex justify-between overflow-x-auto space-x-4 pt-2">
-          {categories.map((category) => (
-            <Link key={category.name} href={category.href} legacyBehavior>
-              <a className="flex flex-col items-center text-gray-800 text-sm hover:text-blue-600">
-                <div className="text-2xl mb-1">{category.icon}</div>
-                <span>{category.name}</span>
-              </a>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <CategoriesList />
     </nav>
   );
 }

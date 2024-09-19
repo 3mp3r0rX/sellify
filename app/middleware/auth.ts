@@ -6,7 +6,6 @@ export function middleware(request: NextRequest) {
   const cookies = cookie.parse(request.headers.get('cookie') || '');
   const token = cookies.token;
 
-  // Check if token is valid (this example assumes 'user-session-token' as a placeholder)
   if (token !== 'user-session-token') {
     return NextResponse.redirect(new URL('/login', request.url));
   }
@@ -15,5 +14,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/protected/*'], // Define routes that require authentication
+  matcher: ['/protected/*'], 
 };

@@ -7,39 +7,64 @@ export default function PostAdPage() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [category, setCategory] = useState(''); // New state for category
+  const [category, setCategory] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Basic validation
+    
     if (!title || !description || isNaN(Number(price)) || !category) {
       setError('Please fill out all fields correctly.');
       return;
     }
-
-    const res = await fetch('/api/ads', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, description, price: Number(price), imageUrl, category }),
-    });
-
-    if (res.ok) {
+    
+    try {
+      // Fetch category ID based on category name
+      const categoryRes = await fetch(`/api/categories?name=${encodeURIComponent(category)}`);
+      if (!categoryRes.ok) {
+        throw new Error(`Failed to fetch category: ${categoryRes.statusText}`);
+      }
+      
+      const categoryData = await categoryRes.json();
+      
+      if (!categoryData || !categoryData.id) {
+        setError('Category not found.');
+        return;
+      }
+      
+      // Create the ad with the category ID
+      const adRes = await fetch('/api/ads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          title, 
+          description, 
+          price: Number(price), 
+          imageUrl, 
+          categoryId: categoryData.id 
+        }),
+      });
+      
+      if (!adRes.ok) {
+        throw new Error(`Failed to post ad: ${adRes.statusText}`);
+      }
+      
       setSuccess('Ad posted successfully!');
       setError('');
-      // Optionally reset form fields
       setTitle('');
       setDescription('');
       setPrice('');
       setImageUrl('');
       setCategory('');
-    } else {
-      setError('Failed to post ad');
+    } catch (error) {
+      setError(error.message || 'An unexpected error occurred');
       setSuccess('');
     }
   };
+  
+  
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
@@ -85,19 +110,33 @@ export default function PostAdPage() {
           />
         </div>
         <div className="mb-4">
-          <label>Category</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md"
-          >
-            <option value="">Select a category</option>
-            <option value="cars">Cars</option>
-            <option value="real-estate">Real Estate</option>
-            <option value="pets">Pets</option>
-            {/* Add other categories as needed */}
-          </select>
-        </div>
+  <label>Category</label>
+  <select
+    value={category}
+    onChange={(e) => setCategory(e.target.value)}
+    className="w-full px-3 py-2 border rounded-md"
+  >
+    <option value="">Select a category</option>
+    <option value="cars">Cars</option>
+    <option value="real-estate">Real Estate</option>
+    <option value="pets">Pets</option>
+    <option value="electronics">Electronics</option>
+    <option value="furniture">Furniture</option>
+    <option value="clothing">Clothing</option>
+    <option value="books">Books</option>
+    <option value="sports">Sports</option>
+    <option value="jobs">Jobs</option>
+    <option value="services">Services</option>
+    <option value="tickets">Tickets</option>
+    <option value="home-improvement">Home Improvement</option>
+    <option value="garden">Garden</option>
+    <option value="appliances">Appliances</option>
+    <option value="toys">Toys</option>
+    <option value="musical-instruments">Musical Instruments</option>
+    <option value="collectibles">Collectibles</option>
+    <option value="antiques">Antiques</option>
+  </select>
+</div>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         {success && <p className="text-green-500 mb-4">{success}</p>}
         <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg">

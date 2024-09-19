@@ -1,25 +1,40 @@
 import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-// GET request to fetch ads, optionally filter by category
-export async function GET(request: Request) {
+// Fetch all ads
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+
+  if (id) {
+    try {
+      const ad = await prisma.ad.findUnique({
+        where: { id: Number(id) },
+      });
+
+      if (ad) {
+        return NextResponse.json(ad, { status: 200 });
+      } else {
+        return NextResponse.json({ error: 'Ad not found' }, { status: 404 });
+      }
+    } catch (error) {
+      console.error('Error fetching ad:', error);
+      return NextResponse.json({ error: 'Failed to fetch ad' }, { status: 500 });
+    }
+  }
+
+  // Return all ads if no ID is provided
   try {
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category'); // Get category from query params, if available
-
-    // Fetch ads, optionally filtered by category
     const ads = await prisma.ad.findMany({
-      where: category ? { category } : {}, // If category exists, filter by category
       select: {
         id: true,
         title: true,
         description: true,
         price: true,
         imageUrl: true,
-        category: true, // Include the category in the response
+        category: true,
       },
     });
-
     return NextResponse.json(ads, { status: 200 });
   } catch (error) {
     console.error('Error fetching ads:', error);
@@ -27,24 +42,22 @@ export async function GET(request: Request) {
   }
 }
 
-// POST request to create a new ad
-export async function POST(request: Request) {
+// Create a new ad
+export async function POST(request: NextRequest) {
   try {
     const { title, description, price, imageUrl, category } = await request.json();
 
-    // Validate required fields
     if (!title || !description || isNaN(price) || !category) {
       return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
     }
 
-    // Create a new ad including the category field
     const newAd = await prisma.ad.create({
       data: {
         title,
         description,
         price,
         imageUrl: imageUrl || null,
-        category, // Save the category in the database
+        category,
       },
     });
 
@@ -52,5 +65,52 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error creating ad:', error);
     return NextResponse.json({ error: 'Failed to post ad' }, { status: 500 });
+  }
+}
+
+// Update an existing ad
+export async function PUT(request: NextRequest) {
+  try {
+    const { id, title, description, price, imageUrl, category } = await request.json();
+
+    if (!id || !title || !description || isNaN(price) || !category) {
+      return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
+    }
+
+    const updatedAd = await prisma.ad.update({
+      where: { id },
+      data: {
+        title,
+        description,
+        price,
+        imageUrl: imageUrl || null,
+        category,
+      },
+    });
+
+    return NextResponse.json(updatedAd, { status: 200 });
+  } catch (error) {
+    console.error('Error updating ad:', error);
+    return NextResponse.json({ error: 'Failed to update ad' }, { status: 500 });
+  }
+}
+
+// Delete an ad
+export async function DELETE(request: NextRequest) {
+  try {
+    const { id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json({ error: 'Ad ID is required' }, { status: 400 });
+    }
+
+    await prisma.ad.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ message: 'Ad deleted successfully' }, { status: 200 });
+  } catch (error) {
+    console.error('Error deleting ad:', error);
+    return NextResponse.json({ error: 'Failed to delete ad' }, { status: 500 });
   }
 }

@@ -15,13 +15,19 @@ model User {
   createdAt DateTime @default(now())
 }
 
+
+model Category {
+  id   Int   @id @default(autoincrement())
+  name String @unique
+  ads  Ad[]
+}
+
 model Ad {
   id          Int      @id @default(autoincrement())
   title       String
   description String
   price       Float
-  imageUrl    String?
-  category    String   // Ensure this field is present
-  createdAt   DateTime @default(now())
+  imageUrl    String
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
 }
-

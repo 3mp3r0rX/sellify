@@ -1,13 +1,42 @@
-// app/category/[category]/page.tsx
-import AdsByCategory from '@/app/components/AdsByCategory';
-import { useParams } from 'next/navigation';
 
-export default function CategoryPage() {
-  const { category } = useParams(); // Get the category from the URL
+import { GetServerSideProps } from 'next';
+import { prisma } from '@/lib/prisma'; 
 
+interface CategoryProps {
+  category: string;
+  ads: any[]; 
+}
+
+const CategoryPage = ({ category, ads }: CategoryProps) => {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <AdsByCategory category={category} />
+    <div>
+      <h1>Ads in {category}</h1>
+      <ul>
+        {ads.map((ad) => (
+          <li key={ad.id}>
+            <h2>{ad.title}</h2>
+            <p>{ad.description}</p>
+            <img src={ad.imageUrl} alt={ad.title} />
+          </li>
+        ))}
+      </ul>
     </div>
   );
-}
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { category } = context.params as { category: string };
+
+  const ads = await prisma.ad.findMany({
+    where: { category },
+  });
+
+  return {
+    props: {
+      category,
+      ads,
+    },
+  };
+};
+
+export default CategoryPage;
