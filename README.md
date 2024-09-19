@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Admin Dashboard Setup (Golang Backend)
 
-First, run the development server:
+This guide outlines the steps to set up the Admin Dashboard for your project using Golang for the backend, along with MySQL/PostgreSQL and JWT for authentication and role management.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Prerequisites
+Golang (v1.18+)
+MySQL/PostgreSQL
+GORM or any ORM
+JWT for Authentication
+Fiber/Gin or any web framework
+Installation
+Clone the repository:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+bash
+Copy code
+git clone https://github.com/your-repo/sellify-backend-go.git
+Navigate to the project directory:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+bash
+Copy code
+cd sellify-backend-go
+Install Go modules:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+bash
+Copy code
+go mod tidy
+Database Setup
+Set up the database connection:
 
-## Learn More
+Configure a connection to MySQL/PostgreSQL in the config/database.go file.
+Define the User model:
 
-To learn more about Next.js, take a look at the following resources:
+Add a User model that includes a role field (e.g., USER, ADMIN).
+Run migrations:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Use GORM or raw SQL to run database migrations and create necessary tables.
+Create Admin User Role
+Create a registration endpoint for admins:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Add a restricted route to register admin users. This route should only be accessible to existing admins or used during setup.
+Seed an initial admin user:
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+You can manually insert an admin user into the database or use a migration script to add the first admin account.
