@@ -1,7 +1,42 @@
-import { FC } from 'react';
+'use client'; // Since this uses client-side rendering
+
+import { FC, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // For programmatic navigation (redirection)
 import Link from 'next/link';
 
 const AdminDashboard: FC = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Function to check if the user is authorized
+    const checkAuthorization = async () => {
+      const res = await fetch('http://localhost:8080/admin', {
+        credentials: 'include', // Include cookies for authentication
+      });
+
+      if (res.status === 401) {
+        // If not authorized, redirect to unauthorized page
+        router.push('/unauthorized');
+      } else {
+        // Authorized, proceed to show the page
+        setIsAuthorized(true);
+      }
+      setIsLoading(false);
+    };
+
+    checkAuthorization();
+  }, [router]);
+
+  if (isLoading) {
+    return <p>Loading...</p>; // Show a loading state
+  }
+
+  if (!isAuthorized) {
+    return null; // Optionally, show a fallback if unauthorized
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
@@ -24,7 +59,6 @@ const AdminDashboard: FC = () => {
             <p>View and manage all users of Sellify.</p>
           </a>
         </Link>
-        {/* Add more sections as needed */}
       </div>
     </div>
   );
