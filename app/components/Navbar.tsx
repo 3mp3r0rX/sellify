@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Transition } from '@headlessui/react';
 import { FaCar, FaHome, FaLaptop, FaCouch, FaTshirt, FaBriefcase, FaDog, FaWrench } from 'react-icons/fa'; // Import icons
 import CategoriesList from './CategoriesList ';
+import {useUser} from '../components/UserContext'
 
 const categories = [
   { name: 'Cars', href: '/category/cars', icon: <FaCar /> },
@@ -19,6 +20,7 @@ const categories = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const {userRole} = useUser();
 
   return (
     <nav className="bg-white shadow-md">
@@ -62,9 +64,12 @@ export default function Navbar() {
           <Link href="/login" legacyBehavior>
             <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Sign In</a>
           </Link>
+          {userRole?.toLocaleLowerCase() === 'admin' && (
           <Link href="/admin"  legacyBehavior>
-           <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Admin Dashboard</a> 
+          <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Admin Dashboard</a> 
           </Link>
+          )}
+          
         </div>
       </div>
 
