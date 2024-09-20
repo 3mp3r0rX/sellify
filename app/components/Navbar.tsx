@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Transition } from '@headlessui/react';
 import { FaCar, FaHome, FaLaptop, FaCouch, FaTshirt, FaBriefcase, FaDog, FaWrench } from 'react-icons/fa'; // Import icons
+import CategoriesList from './CategoriesList ';
 
 const categories = [
   { name: 'Cars', href: '/category/cars', icon: <FaCar /> },
@@ -21,13 +22,11 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white shadow-md">
-      {/* Navbar */}
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link href="/" legacyBehavior>
           <a className="text-2xl font-bold text-gray-800">Sellify</a>
         </Link>
 
-        {/* Hamburger Menu for Mobile */}
         <div className="md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -53,7 +52,6 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Desktop Links */}
         <div className="hidden md:flex space-x-4">
           <Link href="/post-ad" legacyBehavior>
             <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Post Ad</a>
@@ -64,10 +62,12 @@ export default function Navbar() {
           <Link href="/login" legacyBehavior>
             <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Sign In</a>
           </Link>
+          <Link href="/admin"  legacyBehavior>
+           <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Admin Dashboard</a> 
+          </Link>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <Transition
         show={isOpen}
         enter="transition ease-out duration-300 transform"
@@ -92,19 +92,7 @@ export default function Navbar() {
         </div>
       </Transition>
 
-      {/* Categories Under Navbar */}
-      <div className="bg-gray-100 shadow-sm py-2">
-        <div className="container mx-auto px-4 flex justify-between overflow-x-auto space-x-4 pt-2">
-          {categories.map((category) => (
-            <Link key={category.name} href={category.href} legacyBehavior>
-              <a className="flex flex-col items-center text-gray-800 text-sm hover:text-blue-600">
-                <div className="text-2xl mb-1">{category.icon}</div>
-                <span>{category.name}</span>
-              </a>
-            </Link>
-          ))}
-        </div>
-      </div>
+     <CategoriesList />
     </nav>
   );
 }

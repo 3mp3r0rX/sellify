@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Ad" ALTER COLUMN "category" DROP DEFAULT;
