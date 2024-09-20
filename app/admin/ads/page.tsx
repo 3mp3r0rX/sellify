@@ -3,45 +3,40 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+type Ad = {
+  post_id: number;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  created_at: string;
+};
+
+type AdsResponse = {
+  [key: string]: Ad[]; // Keys are usernames, values are arrays of ads
+};
+
 const AdsPage = () => {
-  const [ads, setAds] = useState<any[]>([]);
+  const [ads, setAds] = useState<AdsResponse>({});
   const [error, setError] = useState<string>('');
   const router = useRouter();
 
   useEffect(() => {
     const fetchAds = async () => {
       try {
-        const res = await fetch('/api/ads');
-        const data = await res.json();
-        console.log(data); // Log the data to check its structure
-        if (Array.isArray(data)) {
-          setAds(data);
-        } else {
-          setError('Failed to fetch ads');
-        }
+        const res = await fetch('http://localhost:8080/api/high/auth/admin/posts', {
+          credentials: "include"
+        });
+        if (!res.ok) throw new Error('Failed to fetch ads');
+        const data: AdsResponse = await res.json();
+        console.log('Fetched ads:', data);
+        setAds(data);
       } catch (err) {
-        setError('Failed to fetch ads');
+        setError((err as Error).message);
       }
     };
-  
     fetchAds();
   }, []);
-  
-
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this ad?')) {
-      try {
-        const res = await fetch(`/api/ads`, { method: 'DELETE' });
-        if (res.ok) {
-          setAds(ads.filter(ad => ad.id !== id));
-        } else {
-          setError('Failed to delete ad');
-        }
-      } catch (err) {
-        setError('Failed to delete ad');
-      }
-    }
-  };
 
   const handleEdit = (id: number) => {
     router.push(`/admin/ads/edit`);
@@ -61,20 +56,49 @@ const AdsPage = () => {
           </tr>
         </thead>
         <tbody>
-          {ads.map(ad => (
-            <tr key={ad.id}>
-              <td className="p-3 border-b">{ad.title}</td>
-              <td className="p-3 border-b">{ad.description}</td>
-              <td className="p-3 border-b">{ad.price}</td>
-              <td className="p-3 border-b">
-                <button className="text-blue-500 hover:underline mr-2" onClick={() => handleEdit(ad.id)}>
-                  Edit
+          {Object.entries(ads).map(([username, userAds]) => (
+            userAds.map(ad => (
+              <tr key={ad.post_id}>
+                <td className="p-3 border-b">{ad.title}</td>
+                <td className="p-3 border-b">{ad.description}</td>
+                <td className="p-3 border-b">{ad.price}</td>
+                <td className="p-3 border-b">
+                  <button className="text-blue-500 hover:underline mr-2" onClick={() => handleEdit(ad.post_id)}>
+                    Edit
+                  </button>
+                  <button 
+                      className="text-red-500 hover:underline" 
+                      onClick={async () => {
+                        const confirmed = confirm('Are you sure you want to delete this post?');
+                        if (!confirmed) return;
+
+                        try {
+                          const res = await fetch(`http://localhost:8080/api/high/auth/admin/posts/delete/${ad.post_id}`, {
+                            method: 'DELETE',
+                            credentials: 'include'
+                          });
+
+                          if (!res.ok) throw new Error('Failed to delete post');
+
+                          // Update the ads state to remove the deleted post
+                          setAds(prevAds => {
+                            const updatedAds = { ...prevAds };
+                            for (const user in updatedAds) {
+                              updatedAds[user] = updatedAds[user].filter(post => post.post_id !== ad.post_id);
+                            }
+                            return updatedAds;
+                          });
+                        } catch (err) {
+                          console.error(err);
+                          setError('Failed to delete post');
+                        }
+                      }}
+                    >
+                      Delete
                 </button>
-                <button className="text-red-500 hover:underline" onClick={() => handleDelete(ad.id)}>
-                  Delete
-                </button>
-              </td>
-            </tr>
+                </td>
+              </tr>
+            ))
           ))}
         </tbody>
       </table>
