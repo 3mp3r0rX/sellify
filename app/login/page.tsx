@@ -1,12 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { useUser } from '../components/UserContext'; // Adjust the import path
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const { setUserRole } = useUser(); // Get the setUserRole function from context
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,10 +24,20 @@ export default function LoginPage() {
 
     if (res.ok) {
       setSuccess('Login successful!');
-      // Optionally redirect to homepage after successful login
-      window.location.href = '/';
-    } else {
-      setError('Failed to log in');
+
+      // Fetch the user role
+      const roleRes = await fetch('http://localhost:8080/api/user/role', {
+        credentials: 'include',
+      });
+
+      if (roleRes.ok) {
+        const data = await roleRes.json();
+        setUserRole(data.role); 
+        router.push('/');
+      } else {
+        setError('Failed to retrieve user role');
+      }
+    
     }
   };
 
