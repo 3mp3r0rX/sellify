@@ -1,12 +1,11 @@
+const Unauthorized = () => {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-800 to-black">
+      <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-bold animate-pulse hover:animate-bounce transition-transform duration-300 transform hover:scale-105">
+        What are you doing here? YOU ARE NOT AN ADMIN!
+      </h1>
+    </div>
+  );
+};
 
-
-
-const unauthorized = () => {
-    return (
-        <div className="bg-black h-[800px]">
-            <h1 className="text-center text-white text-[50px] pt-40">what are u doing here, YOU ARE NOT AN ADMIN</h1>
-        </div>
-    )
-}
-
-export default unauthorized;
+export default Unauthorized;

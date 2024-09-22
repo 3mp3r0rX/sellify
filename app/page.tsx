@@ -3,17 +3,22 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
-// Define the types
+type Image = {
+  image_id: number;
+  image_data: string; // Base64 image data
+};
+
 type Ad = {
   title: string;
   description: string;
   price: number;
-  category: string;
+  category_name: string;
   created_at: string;
+  images: Image[]; // Updated to reflect the new structure
 };
 
 type AdsResponse = {
-  [key: string]: Ad[]; // Keys are usernames, values are arrays of ads
+  [key: string]: Ad[]; 
 };
 
 export default function HomePage() {
@@ -26,7 +31,7 @@ export default function HomePage() {
         const res = await fetch('http://localhost:8080/api/ads/feeds');
         if (!res.ok) throw new Error('Failed to fetch ads');
         const data: AdsResponse = await res.json();
-        console.log('Fetched ads:', data); // Log the data structure
+        console.log('Fetched ads:', data);
         setAds(data);
       } catch (err) {
         setError((err as Error).message);
@@ -38,42 +43,51 @@ export default function HomePage() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen py-12">
       <h1 className="text-5xl font-bold text-gray-900">Welcome to Sellify</h1>
-      <p className="mt-3 text-2xl text-gray-700">
-        Buy and Sell Anything, Anytime.
-      </p>
+      <p className="mt-3 text-2xl text-gray-700">Buy and Sell Anything, Anytime.</p>
+      
       <div className="mt-6">
-        <button className="px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700">
-          <Link href="/post-ad">Post Your Ad</Link>
-        </button>
+        <Link href="/post-ad">
+          <button className="px-5 py-3 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-800 transition duration-300">
+            Post Your Ad
+          </button>
+        </Link>
       </div>
-
-      <div className="flex flex-col text items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center mt-8 w-full max-w-6xl mx-auto">
         {error && <p className="text-red-500">{error}</p>}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mx-auto">
-          {/* Iterate over the keys (usernames) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
           {Object.entries(ads).length > 0 ? (
-            Object.entries(ads).map(([userName, userAds]) => (
-              <div key={userName} className="user-posts">
-                <h2 className="text-2xl font-bold">{userName}</h2>
-                <div className="posts">
-                  {/* Iterate over the ads for each user */}
-                  {userAds.map((ad, index) => (
-                    <div key={index} className="p-4 border rounded-md shadow-md">
-                      <h3 className="text-xl font-bold">{ad.title}</h3>
-                      <p className="text-gray-700">{ad.description}</p>
-                      <p className="font-bold">Category: {ad.category}</p>
-                      <p className="font-bold">Price: ${ad.price}</p>
-                      <p className="text-sm text-gray-500">
-                        Posted on: {new Date(ad.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  ))}
+            Object.entries(ads).map(([userName, userAds]) =>
+              userAds.map((ad, index) => (
+                <div key={index} className="max-w-sm rounded-xl overflow-hidden shadow-lg bg-white p-6 transition-transform transform hover:scale-105">
+                  {ad.images.length > 0 ? (
+                    <img
+                      className="w-full h-48 object-cover mb-4"
+                      src={`data:image/jpeg;base64,${ad.images[0].image_data}`} // Displaying the first image
+                      alt={ad.title}
+                    />
+                  ) : (
+                    <img
+                      className="w-full h-48 object-cover mb-4"
+                      src="https://via.placeholder.com/400x300"
+                      alt="No image available"
+                    />
+                  )}
+                  
+                  <h3 className="text-xl font-bold text-gray-900">{ad.title}</h3>
+                  <p className="text-gray-500 mt-1">Posted by: {userName}</p>
+                  <p className="text-gray-700 mt-1">{ad.description}</p>
+                  <p className="font-bold text-gray-800">Category: {ad.category_name}</p>
+                  <p className="font-bold text-gray-800">Price: ${ad.price.toFixed(2)}</p>
+                  
+                  <p className="text-sm text-gray-500">
+                    Posted on: {new Date(ad.created_at).toLocaleDateString()}
+                  </p>
                 </div>
-              </div>
-            ))
+              ))
+            )
           ) : (
-            <p>No ads available</p>
+            <p className="text-gray-600">No ads available</p>
           )}
         </div>
       </div>

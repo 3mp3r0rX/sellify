@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import SearchComponent from '../components/SearchComponent';
 
 interface Ad {
   id: number;
@@ -23,7 +24,7 @@ export default function AdsPage() {
   useEffect(() => {
     async function fetchAds() {
       setLoading(true);
-      setError(null); // Reset error state before loading
+      setError(null); 
 
       try {
         const query = new URLSearchParams({
@@ -38,10 +39,8 @@ export default function AdsPage() {
 
         const data = await res.json();
         
-        // Append new ads to the existing list
         setAds((prevAds) => [...prevAds, ...data.ads]);
         
-        // Determine if more ads are available for pagination
         setHasMore(data.hasMore);
       } catch (error) {
         setError('Failed to load ads. Please try again.');
@@ -57,25 +56,7 @@ export default function AdsPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Available Ads</h1>
 
-      {/* Search and Sort Controls */}
-      <div className="mb-6 flex flex-col md:flex-row gap-4">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search ads..."
-          className="p-2 border border-gray-300 rounded flex-1"
-        />
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          className="p-2 border border-gray-300 rounded mt-4 md:mt-0 md:ml-4 flex-1"
-        >
-          <option value="latest">Sort by Latest</option>
-          <option value="priceAsc">Sort by Price: Low to High</option>
-          <option value="priceDesc">Sort by Price: High to Low</option>
-        </select>
-      </div>
+      <SearchComponent onSearch={undefined} />
 
       {/* Display Ads */}
       {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -89,7 +70,7 @@ export default function AdsPage() {
                 width={500}
                 height={300}
                 className="w-full h-48 object-cover rounded-lg"
-                onError={(e) => (e.currentTarget.src = '/placeholder.png')} // Fallback to placeholder if image fails to load
+                onError={(e) => (e.currentTarget.src = '/placeholder.png')}
               />
               <h2 className="text-2xl font-semibold mt-4">{ad.title}</h2>
               <p className="text-gray-700 mt-2">{ad.description}</p>
@@ -106,7 +87,7 @@ export default function AdsPage() {
       {hasMore && !loading ? (
         <button
           onClick={() => setPage((prevPage) => prevPage + 1)}
-          className="mt-8 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="mt-8 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-800"
         >
           Load More
         </button>

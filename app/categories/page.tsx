@@ -1,5 +1,7 @@
+"use client"; // Add this directive at the top of your file
+
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation'; // For the new app directory, use 'next/navigation'
 import slugify from 'slugify';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
@@ -40,7 +42,7 @@ const CategoriesList = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [showMore, setShowMore] = useState(false);
   const [error, setError] = useState('');
-  const [fetchedData, setFetchedData] = useState<any>(null); 
+  const router = useRouter(); // Import 'useRouter' from 'next/navigation'
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -66,17 +68,11 @@ const CategoriesList = () => {
     fetchCategories();
   }, []);
 
-  const handleCategoryClick = async (categoryName: string) => {
-    try {
-      const res = await fetch(`http://localhost:8080/api/categories/${slugify(categoryName)}`);
-      if (!res.ok) throw new Error('Failed to fetch category data');
+  const handleCategoryClick = (categoryName: string) => {
+    const slugifiedName = slugify(categoryName);
+    router.push(`/categories/${slugifiedName}`);
+};
 
-      const data = await res.json();
-      setFetchedData(data); 
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  };
 
   const displayedCategories = showMore ? categories : categories.slice(0, 4);
 
@@ -86,11 +82,13 @@ const CategoriesList = () => {
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         {displayedCategories.map((category) => (
-          <div key={category.id} onClick={() => handleCategoryClick(category.name)}>
-            <a className="flex flex-col items-center text-center p-2 transition-transform duration-300 transform hover:scale-105 hover:shadow-lg rounded-lg hover:bg-blue-100 text-gray-800 cursor-pointer">
-              <div className="text-3xl mb-2">{category.icon}</div>
-              <span className="font-semibold text-md">{category.name}</span>
-            </a>
+          <div
+            key={category.id}
+            onClick={() => handleCategoryClick(category.name)}
+            className="flex flex-col items-center text-center p-2 transition-transform duration-300 transform hover:scale-105 hover:shadow-lg rounded-lg hover:bg-blue-100 text-gray-800 cursor-pointer"
+          >
+            <div className="text-3xl mb-2">{category.icon}</div>
+            <span className="font-semibold text-md">{category.name}</span>
           </div>
         ))}
 
@@ -113,29 +111,6 @@ const CategoriesList = () => {
           </button>
         )}
       </div>
-
-      {/* Render fetched data if available */}
-      {fetchedData && (
-        <div className="mt-4 p-4 border border-gray-200 rounded-lg text-black">
-          <h2 className="text-xl font-semibold">Category Data</h2>
-          {Object.entries(fetchedData).map(([username, items]) => (
-            <div key={username}>
-              <h3 className="text-lg font-bold">{username}'s Listings:</h3>
-              <ul className="list-disc ml-5">
-                {items.map((item: any, index: number) => (
-                  <li key={index} className="mb-2">
-                    <h4 className="font-semibold">{item.title}</h4>
-                    <p>Description: {item.description}</p>
-                    <p>Price: ${item.price}</p>
-                    <p>Category: {item.category}</p>
-                    <p>Created At: {new Date(item.created_at).toLocaleString()}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
-'use client'; // Since this uses client-side rendering
+'use client'; 
 
 import { FC, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // For programmatic navigation (redirection)
+import { useRouter } from 'next/navigation'; 
 import Link from 'next/link';
 
 const AdminDashboard: FC = () => {
@@ -10,17 +10,15 @@ const AdminDashboard: FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Function to check if the user is authorized
     const checkAuthorization = async () => {
       const res = await fetch('http://localhost:8080/admin', {
-        credentials: 'include', // Include cookies for authentication
+        credentials: 'include', 
       });
 
       if (res.status === 401) {
-        // If not authorized, redirect to unauthorized page
+        
         router.push('/unauthorized');
       } else {
-        // Authorized, proceed to show the page
         setIsAuthorized(true);
       }
       setIsLoading(false);
@@ -30,12 +28,12 @@ const AdminDashboard: FC = () => {
   }, [router]);
 
   if (isLoading) {
-    return <p>Loading...</p>; // Show a loading state
+    return <p>Loading...</p>; 
   }
 
   if (!isAuthorized) {
-    return null; // Optionally, show a fallback if unauthorized
-  }
+    return null; 
+  } 
 
   return (
     <div>
@@ -57,6 +55,12 @@ const AdminDashboard: FC = () => {
           <a className="bg-white p-4 rounded shadow hover:bg-gray-50 transition">
             <h2 className="text-xl font-semibold mb-2">Manage Users</h2>
             <p>View and manage all users of Sellify.</p>
+          </a>
+        </Link>
+        <Link href="/admin/reports" legacyBehavior>
+          <a className="bg-white p-4 rounded shadow hover:bg-gray-50 transition">
+            <h2 className="text-xl font-semibold mb-2">Manage Post Reports</h2>
+            <p>View and manage post reports on Sellify.</p>
           </a>
         </Link>
       </div>

@@ -3,24 +3,23 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Transition } from '@headlessui/react';
-import { FaCar, FaHome, FaLaptop, FaCouch, FaTshirt, FaBriefcase, FaDog, FaWrench } from 'react-icons/fa'; // Import icons
+import { useUser } from '../hooks/UserContext';
+import SearchBar from './SearchBar';
 import CategoriesList from './CategoriesList ';
-import {useUser} from '../components/UserContext'
-
-const categories = [
-  { name: 'Cars', href: '/category/cars', icon: <FaCar /> },
-  { name: 'Real Estate', href: '/category/real-estate', icon: <FaHome /> },
-  { name: 'Electronics', href: '/category/electronics', icon: <FaLaptop /> },
-  { name: 'Furniture', href: '/category/furniture', icon: <FaCouch /> },
-  { name: 'Fashion', href: '/category/fashion', icon: <FaTshirt /> },
-  { name: 'Services', href: '/category/services', icon: <FaWrench /> },
-  { name: 'Jobs', href: '/category/jobs', icon: <FaBriefcase /> },
-  { name: 'Pets', href: '/category/pets', icon: <FaDog /> },
-];
+import CategoryPage from '../categories/page';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const {userRole} = useUser();
+  const { userRole, setUserRole } = useUser();
+
+  const handleLogout = async () => {
+    await fetch('http://localhost:8080/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    setUserRole(''); // Clear the user role
+    window.location.href = '/login'; // Redirect to the login page
+  };
 
   return (
     <nav className="bg-white shadow-md">
@@ -35,7 +34,7 @@ export default function Navbar() {
             type="button"
             className="text-gray-800 focus:outline-none"
             aria-controls="mobile-menu"
-            aria-expanded="false"
+            aria-expanded={isOpen}
           >
             <svg
               className="w-6 h-6"
@@ -54,22 +53,39 @@ export default function Navbar() {
           </button>
         </div>
 
+        <SearchBar />
+
         <div className="hidden md:flex space-x-4">
           <Link href="/post-ad" legacyBehavior>
             <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Post Ad</a>
           </Link>
-          <Link href="/signup" legacyBehavior>
-            <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Sign Up</a>
-          </Link>
-          <Link href="/login" legacyBehavior>
-            <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Sign In</a>
-          </Link>
-          {userRole?.toLocaleLowerCase() === 'admin' && (
-          <Link href="/admin"  legacyBehavior>
-          <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Admin Dashboard</a> 
-          </Link>
+          {userRole ? (
+            <>
+              <Link href="/profile" legacyBehavior>
+                <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Profile</a>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600"
+              >
+                Logout
+              </button>
+              {userRole.toLowerCase() === 'admin' && (
+                <Link href="/admin" legacyBehavior>
+                  <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Admin Dashboard</a>
+                </Link>
+              )}
+            </>
+          ) : (
+            <>
+              <Link href="/signup" legacyBehavior>
+                <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Sign Up</a>
+              </Link>
+              <Link href="/login" legacyBehavior>
+                <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Sign In</a>
+              </Link>
+            </>
           )}
-          
         </div>
       </div>
 
@@ -87,17 +103,29 @@ export default function Navbar() {
             <Link href="/post-ad" legacyBehavior>
               <a className="text-gray-800 block py-2 px-4 rounded-md hover:bg-gray-200">Post Ad</a>
             </Link>
-            <Link href="/signup" legacyBehavior>
-              <a className="text-gray-800 block py-2 px-4 rounded-md hover:bg-gray-200">Sign Up</a>
-            </Link>
-            <Link href="/login" legacyBehavior>
-              <a className="text-gray-800 block py-2 px-4 rounded-md hover:bg-gray-200">Sign In</a>
-            </Link>
+            {userRole ? (
+              <>
+                <Link href="/profile" legacyBehavior>
+                  <a className="text-gray-800 block py-2 px-4 rounded-md hover:bg-gray-200">Profile</a>
+                </Link>
+                <button onClick={handleLogout} className="text-gray-800 block py-2 px-4 rounded-md hover:bg-gray-200">
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/signup" legacyBehavior>
+                  <a className="text-gray-800 block py-2 px-4 rounded-md hover:bg-gray-200">Sign Up</a>
+                </Link>
+                <Link href="/login" legacyBehavior>
+                  <a className="text-gray-800 block py-2 px-4 rounded-md hover:bg-gray-200">Sign In</a>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </Transition>
-
-     <CategoriesList />
+      <CategoryPage />
     </nav>
   );
 }
