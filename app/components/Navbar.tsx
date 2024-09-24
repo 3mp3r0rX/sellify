@@ -4,9 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Transition } from '@headlessui/react';
 import { useUser } from '../hooks/UserContext';
-import SearchBar from './SearchBar';
-import CategoriesList from './CategoriesList ';
 import CategoryPage from '../categories/page';
+import ProfileDropdown from './ProfileDropdown';
+import SearchComponent from './SearchComponent';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,8 +22,8 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-md">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+    <nav className="bg-orange-200 shadow-md">
+      <div className="container mx-auto px-4 py-9 flex justify-between items-center"> {/* Increased padding here */}
         <Link href="/" legacyBehavior>
           <a className="text-2xl font-bold text-gray-800">Sellify</a>
         </Link>
@@ -53,28 +53,19 @@ export default function Navbar() {
           </button>
         </div>
 
-        <SearchBar />
-
-        <div className="hidden md:flex space-x-4">
+        <div className="hidden md:flex items-center space-x-4">
           <Link href="/post-ad" legacyBehavior>
-            <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Post Ad</a>
+            <a className="text-gray-800 font-semibold border border-black rounded-xl py-2 px-4 hover:text-blue-600">Post Ad</a>
           </Link>
           {userRole ? (
             <>
-              <Link href="/profile" legacyBehavior>
-                <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Profile</a>
-              </Link>
+              <ProfileDropdown />
               <button
                 onClick={handleLogout}
                 className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600"
               >
                 Logout
               </button>
-              {userRole.toLowerCase() === 'admin' && (
-                <Link href="/admin" legacyBehavior>
-                  <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Admin Dashboard</a>
-                </Link>
-              )}
             </>
           ) : (
             <>
@@ -86,6 +77,11 @@ export default function Navbar() {
               </Link>
             </>
           )}
+          {userRole.toLowerCase() === 'admin' && (
+            <Link href="/admin" legacyBehavior>
+              <a className="text-gray-800 font-semibold py-2 px-4 hover:text-blue-600">Dashboard</a>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -94,20 +90,18 @@ export default function Navbar() {
         enter="transition ease-out duration-300 transform"
         enterFrom="opacity-0 -translate-y-4"
         enterTo="opacity-100 translate-y-0"
-        leave="transition ease-in duration-200 transform"
+        leave="transition ease-in duration-600 transform"
         leaveFrom="opacity-100 translate-y-0"
         leaveTo="opacity-0 -translate-y-4"
       >
         <div id="mobile-menu" className="md:hidden bg-gray-100 shadow-lg">
           <div className="flex flex-col px-4 py-4 space-y-2">
             <Link href="/post-ad" legacyBehavior>
-              <a className="text-gray-800 block py-2 px-4 rounded-md hover:bg-gray-200">Post Ad</a>
+              <a className="text-gray-800 text-center block py-2 px-4 rounded-md hover:bg-gray-200">Post Ad</a>
             </Link>
             {userRole ? (
               <>
-                <Link href="/profile" legacyBehavior>
-                  <a className="text-gray-800 block py-2 px-4 rounded-md hover:bg-gray-200">Profile</a>
-                </Link>
+                <ProfileDropdown />
                 <button onClick={handleLogout} className="text-gray-800 block py-2 px-4 rounded-md hover:bg-gray-200">
                   Logout
                 </button>
@@ -122,9 +116,18 @@ export default function Navbar() {
                 </Link>
               </>
             )}
+            {userRole.toLowerCase() === 'admin' && (
+              <Link href="/admin" legacyBehavior>
+                <a className="text-gray-800 text-center font-semibold py-2 px-4 hover:text-blue-600">Dashboard</a>
+              </Link>
+            )}
           </div>
         </div>
       </Transition>
+
+      <div className="flex justify-center items-center py-4"> 
+        <SearchComponent onSearch={undefined} />
+      </div>
       <CategoryPage />
     </nav>
   );

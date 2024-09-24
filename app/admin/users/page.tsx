@@ -7,7 +7,8 @@ interface User {
   id: number;
   name: string;
   email: string;
-  no_posts: number;
+  numberOfPosts: number;
+  roleId: number;
 }
 
 const ManageUsers: FC = () => {
@@ -17,33 +18,32 @@ const ManageUsers: FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch users from the API
     const fetchUsers = async () => {
       try {
         const res = await fetch('http://localhost:8080/api/high/auth/admin/users', {
-          credentials: "include"
+          credentials: 'include',
         });
         if (res.ok) {
           const data = await res.json();
-          
-          // Convert the object into an array of User objects
-          const usersArray: User[] = Object.values(data).map((user: any) => ({
-            id: user.userid,
-            name: user.username,
-            email: Object.keys(data).find(key => data[key].userid === user.userid) || "", // Find email based on userid
+
+          const usersArray: User[] = data.map((user: any) => ({
+            id: user.userId, 
+            name: `${user.firstName} ${user.lastName}`, 
+            email: user.email,
+            numberOfPosts: user.numberOfPosts,
+            roleId: user.roleId ?? 0, 
           }));
-    
+
           setUsers(usersArray);
         } else {
           throw new Error('Failed to fetch users');
         }
       } catch (err) {
-        setError(err.message);
+        setError((err as Error).message);
       } finally {
         setLoading(false);
       }
     };
-    
 
     fetchUsers();
   }, []);
@@ -84,6 +84,7 @@ const ManageUsers: FC = () => {
               <th className="p-3 text-left border-b font-semibold text-gray-700">ID</th>
               <th className="p-3 text-left border-b font-semibold text-gray-700">Name</th>
               <th className="p-3 text-left border-b font-semibold text-gray-700">Email</th>
+              <th className="p-3 text-left border-b font-semibold text-gray-700">Role</th>
               <th className="p-3 text-left border-b font-semibold text-gray-700">Actions</th>
             </tr>
           </thead>
@@ -93,6 +94,7 @@ const ManageUsers: FC = () => {
                 <td className="p-3 border-b text-gray-700">{user.id}</td>
                 <td className="p-3 border-b text-gray-700">{user.name}</td>
                 <td className="p-3 border-b text-gray-700">{user.email}</td>
+                <td className="p-3 border-b text-gray-700">{user.roleId}</td>
                 <td className="p-3 border-b">
                   <button
                     className="text-blue-500 hover:underline mr-2"

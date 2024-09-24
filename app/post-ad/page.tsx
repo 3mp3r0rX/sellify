@@ -4,37 +4,42 @@ import { useState } from 'react';
 import { useCategories } from '../hooks/CategoriesContext';
 import { useUser } from '../hooks/UserContext'; 
 import LoginPopup from '../components/LoginPopup'; 
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import LocationAutocomplete from '../components/LocationAutocomplete';
+
+const MySwal = withReactContent(Swal);
 
 export default function PostAdPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [image, setImage] = useState<File | null>(null);
+  const [images, setImages] = useState<File[]>([]);
   const [category, setCategory] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [location, setLocation] = useState('');
+  const [loading, setLoading] = useState(false);
   const [isLoginPopupOpen, setLoginPopupOpen] = useState(false);
-  const { categories, loading } = useCategories() || { categories: [], loading: true };
+  const { categories } = useCategories() || { categories: [], loading: true };
   const { userRole, setUserRole } = useUser();
-
-
 
   const isLoggedIn = userRole !== '';
 
-
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImage(file);
+    const files = e.target.files;
+    if (files) {
+      setImages(Array.from(files)); 
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !description || isNaN(Number(price)) || !category || !image) {
-      setError('Please fill out all fields correctly.');
+    if (!title || !description || isNaN(Number(price)) || !category || !location || images.length === 0) {
+      MySwal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please fill out all fields correctly.',
+      });
       return;
     }
 
@@ -42,9 +47,13 @@ export default function PostAdPage() {
     formData.append('title', title);
     formData.append('description', description);
     formData.append('price', price);
-    formData.append('category_id', category);
-    formData.append('images', image);
+    formData.append('categoryId', category);
+    formData.append('location', location);
+    images.forEach((image) => {
+      formData.append('images', image);
+    });
 
+    setLoading(true);
     try {
       const res = await fetch('http://localhost:8080/api/ads', {
         method: 'POST',
@@ -53,20 +62,29 @@ export default function PostAdPage() {
       });
 
       if (res.ok) {
-        setSuccess('Ad posted successfully!');
-        setError('');
+        MySwal.fire({
+          icon: 'success',
+          title: 'Ad posted successfully!',
+        });
         setTitle('');
         setDescription('');
         setPrice('');
         setCategory('');
-        setImage(null);
+        setLocation('');
+        setImages([]);
       } else {
-        setError('Failed to post ad');
-        setSuccess('');
+        MySwal.fire({
+          icon: 'error',
+          title: 'Failed to post ad',
+        });
       }
     } catch (err) {
-      setError('Failed to post ad');
-      setSuccess('');
+      MySwal.fire({
+        icon: 'error',
+        title: 'Failed to post ad',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,82 +99,91 @@ export default function PostAdPage() {
       {isLoggedIn ? (
         <>
           <h1 className="text-4xl font-bold mb-6">Post a New Ad</h1>
-          <form onSubmit={handleSubmit} className="w-full max-w-lg bg-white p-6 rounded-lg shadow-md space-y-6">
+          <form onSubmit={handleSubmit} className="w-full max-w-lg bg-white p-6 rounded-xl  shadow-md space-y-6">
+            {/* Title Input */}
             <div className="mb-4">
               <label className="block font-semibold mb-1">Title</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:border-blue-500"
                 placeholder="Enter ad title"
               />
             </div>
 
+            {/* Description Input */}
             <div className="mb-4">
               <label className="block font-semibold mb-1">Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl  shadow-sm focus:outline-none focus:border-blue-500"
                 placeholder="Enter ad description"
               />
             </div>
 
+            {/* Price Input */}
             <div className="mb-4">
               <label className="block font-semibold mb-1">Price</label>
               <input
                 type="number"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:border-blue-500"
                 placeholder="Enter price"
               />
             </div>
 
+            {/* Location Input */}
+            <LocationAutocomplete />
+
+            {/* Images Upload */}
             <div className="mb-4">
-              <label className="block font-semibold mb-1">Image</label>
+              <label className="block font-semibold mb-1">Images</label>
               <input
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={handleImageUpload}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl  shadow-sm focus:outline-none focus:border-blue-500"
               />
-              {image && <p className="mt-2 text-sm text-gray-600">Selected: {image.name}</p>}
-            </div>
-
-            <div className="mb-4">
-              <label className="block font-semibold mb-1">Category</label>
-              {loading ? (
-                <p className="text-gray-500">Loading categories...</p>
-              ) : (
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
-                >
-                  <option value="">Select a category</option>
-                  {Array.isArray(categories) && categories.length > 0 ? (
-                    categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))
-                  ) : (
-                    <option disabled>No categories available</option>
-                  )}
-                </select>
+              {images.length > 0 && (
+                <div className="mt-2 text-sm text-gray-600">
+                  {images.map((image) => (
+                    <p key={image.name}>{image.name}</p>
+                  ))}
+                </div>
               )}
             </div>
 
-            {error && <p className="text-red-500">{error}</p>}
-            {success && <p className="text-green-500">{success}</p>}
+            {/* Category Dropdown */}
+            <div className="mb-4">
+              <label className="block font-semibold mb-1">Category</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:border-blue-500"
+              >
+                <option value="">Select a category</option>
+                {Array.isArray(categories) && categories.length > 0 ? (
+                  categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))
+                ) : (
+                  <option disabled>No categories available</option>
+                )}
+              </select>
+            </div>
 
             <button
               type="submit"
-              className="w-full py-3 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 transition-colors duration-300 ease-in-out"
+              className={`w-full py-3 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 transition-colors duration-300 ease-in-out ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={loading}
             >
-              Post Ad
+              {loading ? 'Posting...' : 'Post Ad'}
             </button>
           </form>
         </>

@@ -20,7 +20,7 @@ export const CategoriesProvider = ({ children }: { children: React.ReactNode }) 
         const categoriesArray: Category[] = Object.entries(data).map(([id, name]) => ({
           id: parseInt(id, 10),
           name,
-          icon: '❓', // Default icon if needed
+          icon: '❓', 
         }));
 
         setCategories(categoriesArray);
@@ -36,7 +36,7 @@ export const CategoriesProvider = ({ children }: { children: React.ReactNode }) 
 
   return (
     <CategoriesContext.Provider value={{ categories }}>
-      {loading ? <p>Loading categories...</p> : children}
+      {children}
     </CategoriesContext.Provider>
   );
 };

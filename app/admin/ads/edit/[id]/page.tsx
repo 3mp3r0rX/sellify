@@ -19,7 +19,7 @@ const EditAdPage = () => {
   useEffect(() => {
     const fetchAd = async () => {
       try {
-        const res = await fetch(`/api/ads/${id}`);
+        const res = await fetch(`http://localhost:8080/api/ads/${id}`);
         const data = await res.json();
         if (data) {
           setAd(data);

@@ -1,7 +1,7 @@
-"use client"; // Add this directive at the top of your file
+"use client"; 
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // For the new app directory, use 'next/navigation'
+import { useRouter } from 'next/navigation';
 import slugify from 'slugify';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
@@ -13,7 +13,7 @@ interface Category {
 
 const iconMap: Record<string, string> = {
   Cars: '🚗',
-  'Real Estate': '🏠',
+  'Real-Estate': '🏠',
   Pets: '🐶',
   Electronics: '📱',
   Fashion: '👗',
@@ -22,18 +22,18 @@ const iconMap: Record<string, string> = {
   Sports: '⚽',
   Books: '📚',
   Services: '🛠️',
-  'Health & Beauty': '💄',
+  'Health-Beauty': '💄',
   Toys: '🧸',
   Groceries: '🛒',
-  'Baby Products': '👶',
-  'Music Instruments': '🎸',
-  'Garden & Outdoor': '🌳',
+  'Baby-Products': '👶',
+  'Music-Instruments': '🎸',
+  'Garden-Outdoor': '🌳',
   Travel: '✈️',
   'Movies & Games': '🎮',
   Bikes: '🚲',
-  'Art & Collectibles': '🖼️',
-  'Home Appliances': '🍳',
-  'Event Planning': '🎉',
+  'Art-Collectibles': '🖼️',
+  'Home-Appliances': '🍳',
+  'Event-Planning': '🎉',
   Watches: '⌚',
   Cameras: '📷',
 };
@@ -42,7 +42,7 @@ const CategoriesList = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [showMore, setShowMore] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter(); // Import 'useRouter' from 'next/navigation'
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -74,10 +74,11 @@ const CategoriesList = () => {
 };
 
 
-  const displayedCategories = showMore ? categories : categories.slice(0, 4);
+  const displayedCategories = showMore ? categories : categories.slice(0, 8);
 
   return (
-    <div className="bg-white shadow-md py-4 rounded-lg">
+    <div className="bg-white shadow-md py-4 rounded-lg py-10">
+      <h1 className='text-center text-4xl font-bold py-3'>Categories</h1>
       <div className="container mx-auto px-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
