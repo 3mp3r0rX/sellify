@@ -10,6 +10,7 @@ const ChatPage: React.FC = () => {
   const ws = useRef<WebSocket | null>(null);
   const searchParams = useSearchParams(); // Extract search params
   const roomId = searchParams.get('roomId'); // Get roomId from query params
+  const userId = searchParams.get('userId');
  
   // Get the dynamic postId from the route
   const router = useRouter();
@@ -23,11 +24,22 @@ const ChatPage: React.FC = () => {
     //   return;
     // }
 
+    if (roomId == userId) {
+      console.log("You cannot start a chat with yourself");
+
+      alert("You cannot start a chat with yourself");
+      return;
+    }
+
+    if(!roomId || !userId) {
+      console.log('No roomId or userId found in the query parameters')
+    }
+
     // Establish WebSocket connection
-    ws.current = new WebSocket(`ws://localhost:8000/ws/${postId}`);
+    ws.current = new WebSocket(`ws://localhost:8000/ws/${roomId}-${userId}`);
 
     ws.current.onopen = () => {
-      console.log('WebSocket connection established for room:', postId);
+      console.log('WebSocket connection established for room:', roomId, 'and user:', userId);
     };
 
     ws.current.onmessage = (event) => {
@@ -63,7 +75,7 @@ const ChatPage: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
     <div className="w-full max-w-2xl bg-white shadow-md rounded-lg p-6">
-      <h1 className="text-2xl font-bold text-center mb-4">Chat Room for Post ID: {postId}</h1>
+      <h1 className="text-2xl font-bold text-center mb-4">Chat Room for Room ID: {roomId} - User ID: {userId}</h1>
       <div className="h-64 overflow-y-scroll border border-gray-300 rounded-lg p-4 mb-4">
         {messages.length === 0 ? (
           <p className="text-gray-500 text-center">No messages yet. Start the conversation!</p>
