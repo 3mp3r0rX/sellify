@@ -38,7 +38,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4 py-9 flex justify-between items-center">
 
         <Link href="/" legacyBehavior>
-          <a className="text-2xl font-bold text-gray-900">Sellify</a>
+          <a className="text-4xl font-bold text-white">Sellify</a>
         </Link>
 
         <div className="md:hidden">
@@ -81,12 +81,12 @@ export default function Navbar() {
           ) : (
             <>
               <Link href="/signup" legacyBehavior>
-                <a className="text-gray-900 font-semibold py-2 px-4 hover:text-blue-700">
+                <a className="text-white font-semibold py-2 px-4 hover:text-blue-700">
                   Sign Up
                 </a>
               </Link>
               <Link href="/login" legacyBehavior>
-                <a className="text-gray-900 font-semibold py-2 px-4 hover:text-blue-700">
+                <a className="text-white font-semibold py-2 px-4 hover:text-blue-700">
                   Sign In
                 </a>
               </Link>
@@ -100,7 +100,7 @@ export default function Navbar() {
             </Link>
           )}
          <Link href="/post-ad" legacyBehavior>
-         <a className="text-blue-500 bg-white font-semibold border rounded-xl py-2 px-4 hover:text-blue-800 flex items-center">
+         <a className="text-blue-500 bg-white font-semibold rounded-xl py-2 px-4 hover:bg-blue-500 hover:text-white flex items-center">
          <FaPlus className="mr-2" /> 
            Post Ad
           </a>
