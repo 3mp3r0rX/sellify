@@ -33,39 +33,51 @@ export default function PostAdPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!title || !description || isNaN(Number(price)) || !category || !location || images.length === 0) {
-      MySwal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Please fill out all fields correctly.',
-      });
-      return;
-    }
-
+  
+    // if (!title || !description || isNaN(Number(price)) || !category || !location || images.length === 0) {
+    //   MySwal.fire({
+    //     icon: 'error',
+    //     title: 'Oops...',
+    //     text: 'Please fill out all fields correctly.',
+    //   });
+    //   return;
+    // }
+  
+  
+    // Create form data
     const formData = new FormData();
     formData.append('title', title);
-    formData.append('description', description);
+    formData.append('content', description);
     formData.append('price', price);
     formData.append('categoryId', category);
     formData.append('location', location);
     images.forEach((image) => {
       formData.append('images', image);
     });
-
     setLoading(true);
+  
     try {
-      const res = await fetch('http://localhost:8080/api/ads', {
+      const res = await fetch('http://localhost:8080/api/user/post/ads', {
         method: 'POST',
-        credentials: 'include',
         body: formData,
+        credentials: 'include',
       });
-
+    
+      const contentType = res.headers.get('content-type');
+    
+      let responseData;
+      if (contentType && contentType.includes('application/json')) {
+        responseData = await res.json(); 
+      } else {
+        responseData = await res.text(); 
+      }
+    
       if (res.ok) {
         MySwal.fire({
           icon: 'success',
           title: 'Ad posted successfully!',
         });
+        // Reset fields
         setTitle('');
         setDescription('');
         setPrice('');
@@ -73,20 +85,25 @@ export default function PostAdPage() {
         setLocation('');
         setImages([]);
       } else {
+        console.log(responseData); 
         MySwal.fire({
           icon: 'error',
           title: 'Failed to post ad',
+          text: responseData || 'Something went wrong',
         });
       }
     } catch (err) {
+      console.error(err); 
       MySwal.fire({
         icon: 'error',
         title: 'Failed to post ad',
+        text: err.message || 'Network error',
       });
     } finally {
       setLoading(false);
     }
-  };
+    
+  }
 
   const handleLoginSuccess = (role: string) => {
     setUserRole(role);
@@ -136,7 +153,7 @@ export default function PostAdPage() {
             </div>
 
             {/* Location Input */}
-            <LocationAutocomplete />
+            <LocationAutocomplete onLocationSelect={(selectedLocation) => setLocation(selectedLocation)} />
 
             {/* Images Upload */}
             <div className="mb-4">
@@ -192,7 +209,7 @@ export default function PostAdPage() {
           <h2 className="text-xl mb-4">You need to be logged in to post an ad.</h2>
           <button
             onClick={() => setLoginPopupOpen(true)}
-            className="py-2 px-4 bg-purple-600 text-white hover:bg-purple-800 rounded-md"
+            className="py-2 px-4 bg-purple-600 text-white hover:bg-purple-800 rounded-xl"
           >
             Login
           </button>

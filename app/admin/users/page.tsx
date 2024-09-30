@@ -4,11 +4,12 @@ import { FC, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface User {
-  id: number;
-  name: string;
-  email: string;
+  userId: number;
+  firstName: string;
+  lastName: string;
   numberOfPosts: number;
-  roleId: number;
+  createdAt: bigint
+  // roleId: number;
 }
 
 const ManageUsers: FC = () => {
@@ -26,7 +27,7 @@ const ManageUsers: FC = () => {
         if (res.ok) {
           const data = await res.json();
 
-          const usersArray: User[] = data.map((user: any) => ({
+          const usersArray: User[] = Object.values(data).map((user: any) => ({
             id: user.userId, 
             name: `${user.firstName} ${user.lastName}`, 
             email: user.email,
@@ -53,7 +54,9 @@ const ManageUsers: FC = () => {
       try {
         const res = await fetch(`http://localhost:8080/api/high/auth/admin/users/${id}`, {
           method: 'DELETE',
-          credentials: 'include',
+          headers: {
+            'Authorization': `${token}`,
+          },
         });
 
         if (res.ok) {

@@ -1,4 +1,3 @@
-// components/BookmarkButton.tsx
 
 import { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -6,7 +5,7 @@ import axios from 'axios';
 
 interface BookmarkButtonProps {
   adId: number;
-  isBookmarked: boolean;  // Initial state: whether this ad is bookmarked
+  isBookmarked: boolean;  
 }
 
 const BookmarkButton: React.FC<BookmarkButtonProps> = ({ adId, isBookmarked }) => {
@@ -30,9 +29,9 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({ adId, isBookmarked }) =
   return (
     <button onClick={handleBookmark}>
       {bookmarked ? (
-        <span className="text-yellow-400">★</span>  // Filled star
+        <span className="text-yellow-500 text-xl">★</span> 
       ) : (
-        <span className="text-gray-400">☆</span>  // Empty star
+        <span className="text-gray-500 text-xl">☆</span> 
       )}
     </button>
   );

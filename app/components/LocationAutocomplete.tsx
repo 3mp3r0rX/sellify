@@ -1,51 +1,39 @@
-'use client';
+import { useState } from 'react';
 
-import { SetStateAction, useState } from 'react';
+interface LocationAutocompleteProps {
+  onLocationSelect: (location: string) => void;
+}
 
 const locations = [
-    'Amman',
-    'Zarqa',
-    'Irbid',
-    'Russeifa',
-    'Aqaba',
-    'Mafraq',
-    'Madaba',
-    'Al-Salt',
-    'Jerash',
-    'Tafila',
-    'Ma\'an',
-    'Karak',
-    'Ajloun',
-    'Al-Ramtha',
-    'Al-Quwaysimah',
-    'Sahab',
-    'Al-Jubaiha',
-    'Al-Husn',
-    'Ain Al-Basha',
-    'Fuheis',
-    'Bayt Yafa',
-    'Shouneh Al-Janubiyya',
-    'Deir Alla',
-    'Azraq',
-    'Al-Hashimiya',
-    'Al-Dhulayl',
-    'Al-Sukhnah',
-    'Qatraneh',
-    // Add more if needed
-  ];
-  
+  'Amman',
+  'Irbid',
+  'Zarqa',
+  'Aqaba',
+  'Madaba',
+  'Salt',
+  'Karak',
+  'Tafila',
+  'Ajloun',
+  'Mafraq',
+  'Jerash',
+  'Russeifa',
+  'Al-Jizah',
+  'Al-Salt',
+  'Al-Mafraq',
+  'Ar-Ramtha',
+];
 
-export default function LocationAutocomplete() {
-  const [location, setLocation] = useState('');
-  const [filteredLocations, setFilteredLocations] = useState([]);
+const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ onLocationSelect }) => {
+  const [inputValue, setInputValue] = useState('');
+  const [filteredLocations, setFilteredLocations] = useState<string[]>([]);
 
-  const handleChange = (e: { target: { value: any; }; }) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setLocation(value);
-    
-    if (value) {
-      const filtered = locations.filter((loc) =>
-        loc.toLowerCase().includes(value.toLowerCase())
+    setInputValue(value);
+
+    if (value.length > 2) {
+      const filtered = locations.filter(location =>
+        location.toLowerCase().includes(value.toLowerCase())
       );
       setFilteredLocations(filtered);
     } else {
@@ -53,36 +41,37 @@ export default function LocationAutocomplete() {
     }
   };
 
-  const handleSelect = (value: SetStateAction<string>) => {
-    setLocation(value);
+  const handleLocationSelect = (location: string) => {
+    setInputValue(location);
     setFilteredLocations([]);
+    onLocationSelect(location);
   };
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 relative">
       <label className="block font-semibold mb-1">Location</label>
-      <div className="relative">
-        <input
-          type="text"
-          value={location}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:border-blue-500"
-          placeholder="Enter location"
-        />
-        {filteredLocations.length > 0 && (
-          <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-xl shadow-lg mt-1">
-            {filteredLocations.map((loc, index) => (
-              <li
-                key={index}
-                onClick={() => handleSelect(loc)}
-                className="px-3 py-2 cursor-pointer hover:bg-blue-100"
-              >
-                {loc}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <input
+        type="text"
+        value={inputValue}
+        onChange={handleInputChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:border-blue-500"
+        placeholder="Enter location"
+      />
+      {filteredLocations.length > 0 && (
+        <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-xl shadow-md max-h-60 overflow-y-auto">
+          {filteredLocations.map((location) => (
+            <li
+              key={location}
+              className="px-3 py-2 hover:bg-gray-200 cursor-pointer"
+              onClick={() => handleLocationSelect(location)}
+            >
+              {location}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
-}
+};
+
+export default LocationAutocomplete;

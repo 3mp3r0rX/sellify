@@ -1,12 +1,13 @@
 'use client';
-
+import Cookies from 'js-cookie'; 
 import { useEffect, useState } from 'react';
 import { useUser } from '../hooks/UserContext'; 
 import { useRouter } from 'next/navigation';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Loading from '../components/Loading';
 import { signIn } from 'next-auth/react'; 
+import Link from 'next/link'; // Next.js Link
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const { setUserRole } = useUser(); 
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [isLoggingIn, setIsLoggingIn] = useState(false); // State for button loading
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000); 
@@ -22,31 +24,42 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const res = await fetch('http://localhost:8080/api/auth/login', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    setIsLoggingIn(true);
 
-    if (res.ok) {
-      const roleRes = await fetch('http://localhost:8080/api/user/role', {
-        credentials: 'include',
-      });
-      
-      if (roleRes.ok) {
-        const data = await roleRes.json();
-        setUserRole(data.role); 
-        toast.success('Login successful!'); 
-        router.push('/'); 
-      } else {
-        toast.error('Failed to retrieve user role.'); 
-      }
-    } else {
-      toast.error('Login failed. Please check your credentials.');
+    try {
+        const res = await fetch('http://localhost:8080/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include',
+        });
+
+        if (!res.ok) {
+            throw new Error('Login failed. Please check your credentials.');
+        }
+
+        const roleRes = await fetch('http://localhost:8080/api/user/role', {
+            credentials: 'include',
+        });
+
+        if (!roleRes.ok) {
+            throw new Error('Failed to retrieve user role.');
+        }
+
+        const roleData = await roleRes.json();
+        setUserRole(roleData.role);
+        
+        Cookies.set('userSession', 'true', { expires: 7 });
+        
+        toast.success('Login successful!');
+        router.push('/');
+
+    } catch (error: any) {
+        toast.error(error.message);
+    } finally {
+        setIsLoggingIn(false); // End login process
     }
-  };
+};
 
   const handleGoogleLogin = () => {
     signIn('google'); // Trigger Google login
@@ -70,7 +83,7 @@ export default function LoginPage() {
 
           <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Existing email and password fields */}
+              {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
                   Email address
@@ -89,15 +102,16 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {/* Password Field */}
               <div>
                 <div className="flex items-center justify-between">
                   <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
                     Password
                   </label>
                   <div className="text-sm">
-                    <a href="forgetpassword" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                    <Link href="/forgetpassword" className="font-semibold text-indigo-600 hover:text-indigo-500">
                       Forgot password?
-                    </a>
+                    </Link>
                   </div>
                 </div>
                 <div className="mt-2">
@@ -114,12 +128,16 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {/* Sign-in button */}
               <div>
                 <button
                   type="submit"
-                  className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  disabled={isLoggingIn} // Disable button while logging in
+                  className={`flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
+                    isLoggingIn ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
-                  Sign in
+                  {isLoggingIn ? 'Signing in...' : 'Sign in'}
                 </button>
               </div>
             </form>
@@ -142,12 +160,11 @@ export default function LoginPage() {
 
             <p className="mt-10 text-center text-sm text-gray-500">
               Not a member?{' '}
-              <a href="/signup" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+              <Link href="/signup" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                 Sign up
-              </a>
+              </Link>
             </p>
           </div>
-          <ToastContainer />
         </div>
       )}
     </>

@@ -9,7 +9,7 @@ export default function AdDetailsPage() {
   useEffect(() => {
     if (id) {
       async function fetchAd() {
-        const res = await fetch(`/api/ads/${id}`);
+        const res = await fetch(`http://localhost:8080/api/ads/${id}`);
         const data = await res.json();
         setAd(data);
       }

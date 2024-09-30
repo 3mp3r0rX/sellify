@@ -1,13 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { useCategories } from '../hooks/CategoriesContext'; 
 
 const SearchComponent = ({ onSearch }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const { categories } = useCategories(); 
 
   const handleSearch = () => {
-    onSearch({ searchQuery, location });
+    onSearch({ searchQuery, location, selectedCategory });
   };
 
   return (
@@ -26,9 +29,21 @@ const SearchComponent = ({ onSearch }) => {
         onChange={(e) => setLocation(e.target.value)}
         className="w-full md:w-1/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:mr-3 mb-2 md:mb-0"
       />
+      <select
+        value={selectedCategory}
+        onChange={(e) => setSelectedCategory(e.target.value)}
+        className="w-full md:w-1/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:mr-3 mb-2 md:mb-0"
+      >
+        <option value="">Select Category</option>
+        {categories.map((category) => (
+          <option key={category.id} value={category.id}>
+            {category.name}
+          </option>
+        ))}
+      </select>
       <button
         onClick={handleSearch}
-        className="w-full md:w-1/4 px-4 py-2 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-800 transition duration-300"
+        className="w-full md:w-1/4 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-800 transition duration-300"
       >
         Search
       </button>

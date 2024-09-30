@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from 'react';
+import Cookies from 'js-cookie'; // Import js-cookie
 
 interface UserContextType {
   userRole: string;
@@ -14,18 +15,24 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const checkAuthStatus = async () => {
-      try {
-        const res = await fetch('http://localhost:8080/api/user/role', {
-          credentials: 'include',
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setUserRole(data.role);
-        } else {
-          console.error('Failed to fetch user role');
+      // Check for the session cookie
+      const session = Cookies.get('userSession');
+
+      if (session) {
+        try {
+          const res = await fetch('http://localhost:8080/api/user/role', {
+            credentials: 'include', // Include cookies in the request
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            setUserRole(data.role);
+          } else {
+            console.error('Failed to fetch user role');
+          }
+        } catch (error) {
+          console.error('Error checking auth status:', error);
         }
-      } catch (error) {
-        console.error('Error checking auth status:', error);
       }
     };
     checkAuthStatus();

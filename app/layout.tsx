@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import { UserProvider } from "./hooks/UserContext";
 import { CategoriesProvider } from "./hooks/CategoriesContext";
+import Footer from "./components/Footer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,6 +34,7 @@ export default function RootLayout({
           <CategoriesProvider>
           <Navbar />
           {children}
+          <Footer />
           </CategoriesProvider>
           </UserProvider>
       </body>
